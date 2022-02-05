@@ -1,6 +1,6 @@
 FROM python:3
 
-WORKDIR /Puhmuckl/
+WORKDIR /puhmuckl/
 
 COPY ./puhmuckl ./
 COPY ./requirements.txt ./
