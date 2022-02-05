@@ -3,7 +3,7 @@ FROM python:3
 WORKDIR /Puhmuckl/
 
 COPY ./puhmuckl ./
-COPY ./cogs ./
+COPY ./requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
