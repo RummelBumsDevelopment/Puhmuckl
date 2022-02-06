@@ -17,7 +17,7 @@ relative.set_pwd(os.path.dirname(__file__))
 if not config.load_config(relative.make_relative("data/config.ini")):
     exit(-1)
 
-logging.basicConfig(level=log_level_dict[config.get_script_config("logLevel")])
+logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")])
 
 # Create bot
 bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insensitive=True)
