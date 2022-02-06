@@ -7,6 +7,7 @@ class WolframResponse:
 
     def __init__(self, query: str):
         self.query = query
+        self.response = ""
         self.send()
 
     def send(self):
@@ -14,3 +15,4 @@ class WolframResponse:
             WolframResponse.API_ENDPOINT.format(config.get_auth_config('wolframalpha'), self.query)
         )
         logging.debug(response.text)
+        self.response = response
