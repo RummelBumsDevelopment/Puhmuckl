@@ -14,7 +14,9 @@ logging.basicConfig(level=logging.INFO)
 
 # Set up paths, config and logging
 relative.set_pwd(os.path.dirname(__file__))
-config.load_config(relative.make_relative("data/config.ini"))
+if not config.load_config(relative.make_relative("data/config.ini")):
+    exit(-1)
+
 logging.basicConfig(level=log_level_dict[config.get_script_config("logLevel")])
 
 # Create bot
