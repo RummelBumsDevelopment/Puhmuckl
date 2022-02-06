@@ -41,6 +41,3 @@ class WolframAlpha(commands.Cog):
     async def wolframalpha(self, ctx, *query):
         self.activeObjects[ctx.channel.id] = TestEmbed(self, ctx)
         await self.activeObjects[ctx.channel.id].show_embed()
-
-def setup(bot: commands.Bot):
-    bot.add_cog(WolframAlpha(bot))
