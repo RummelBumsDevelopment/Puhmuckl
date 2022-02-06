@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from cogs.wolframalpha.wolframapi import WolframResponse
 from util import interactive
 
 class TestEmbed(interactive.InteractiveEmbed):
@@ -39,5 +40,5 @@ class WolframAlpha(commands.Cog):
 
     @commands.command(name="wolframalpha", description="Queries Wolfram|Alpha", usage="<query>", aliases=["wolf", "wa"])
     async def wolframalpha(self, ctx, *query):
-        self.activeObjects[ctx.channel.id] = TestEmbed(self, ctx)
-        await self.activeObjects[ctx.channel.id].show_embed()
+        response = WolframResponse(" ".join(query))
+        await ctx.send("Queried request. Check logs.")
