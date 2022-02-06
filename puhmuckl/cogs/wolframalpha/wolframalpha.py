@@ -27,7 +27,7 @@ class TestEmbed(interactive.InteractiveEmbed):
 
     def make_embed(self):
         embed = discord.Embed(
-            title = "First 100 characters of response",
+            title = "First 500 characters of response",
             description = f"```{self.content}```",
             color = 0xff7e00
         )
@@ -43,5 +43,5 @@ class WolframAlpha(commands.Cog):
     @commands.command(name="wolframalpha", description="Queries Wolfram|Alpha", usage="<query>", aliases=["wolf", "wa"])
     async def wolframalpha(self, ctx, *query):
         response = WolframResponse(" ".join(query))
-        self.activeObjects[ctx.channel.id] = TestEmbed(self, ctx, response.response.text[0:100])
+        self.activeObjects[ctx.channel.id] = TestEmbed(self, ctx, response.response.text[0:500])
         await self.activeObjects[ctx.channel.id].show_embed()
