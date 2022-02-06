@@ -22,13 +22,18 @@ def load_config(file: str) -> bool:
         config["AUTHORIZATION"]["token"] = "Bot Token"
 
         config.add_section("CLIENT")
-        config["CLIENT"]["prefix"] = "\";\""
+        config["CLIENT"]["prefix"] = ";"
 
         config.add_section("SCRIPT")
         config["SCRIPT"]["logLevel"] = "INFO"
 
+        os.mkdir(relative.make_relative("data"))
         with open(relative.make_relative("data/config.ini"), "w") as configfile:
             config.write(configfile)
+
+        return False
+
+    return True
 
 def get_client_config(key: str) -> str:
     return config["CLIENT"][key]

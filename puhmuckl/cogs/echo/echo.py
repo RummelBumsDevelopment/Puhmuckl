@@ -8,6 +8,3 @@ class Echo(commands.Cog):
     @commands.command(name="echo", help="Echos the user args")
     async def echo(self, ctx, *args):
         await ctx.send(" ".join(args))
-
-def setup(bot):
-    bot.add_cog(Echo(bot))

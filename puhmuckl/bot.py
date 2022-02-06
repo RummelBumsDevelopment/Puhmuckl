@@ -14,7 +14,9 @@ logging.basicConfig(level=logging.INFO)
 
 # Set up paths, config and logging
 relative.set_pwd(os.path.dirname(__file__))
-config.load_config(relative.make_relative("data/config.ini"))
+if not config.load_config(relative.make_relative("data/config.ini")):
+    exit(-1)
+
 logging.basicConfig(level=log_level_dict[config.get_script_config("logLevel")])
 
 # Create bot
@@ -26,14 +28,15 @@ async def on_ready():
 
     # Load modules from the cogs folder
     for cog in os.listdir(relative.make_relative("cogs")):
-        if cog.endswith(".py"):
-            cog_name = cog[:-3]
-            try:
-                bot.load_extension(f"cogs.{cog_name}")
-                logging.info(f"Loaded module {cog_name}")
-            except Exception as e:
-                logging.error(f"Failed to load module {cog_name}. Continuing")
-                pass
+        if cog == "__pycache__":
+            continue
+        
+        try:
+            bot.load_extension(f"cogs.{cog}")
+            logging.info(f"Loaded module {cog}")
+        except Exception as e:
+            logging.error(f"Failed to load module {cog}: {e}. Continuing")
+            pass
 
 # Launch bot
 if __name__ == "__main__":
