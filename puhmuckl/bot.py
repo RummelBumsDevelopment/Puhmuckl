@@ -1,3 +1,4 @@
+from dis import disco
 import os
 import logging
 import discord
@@ -49,6 +50,17 @@ async def on_ready():
         except Exception as e:
             logging.error(f"Failed to load module {cog}: {e}. Continuing")
             pass
+
+# @bot.event
+# async def on_message(message:discord.message.Message):
+#     if(not message.author.bot):
+#         if("schade um den punkt" in message.content.lower()):
+            
+#     return
+# @bot.event
+# async def on_message(message):
+#     if (message.channel.id=="940217437289345034"):
+#         bot.
 
 # Launch bot
 if __name__ == "__main__":
