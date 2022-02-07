@@ -1,5 +1,6 @@
 import os
 import logging
+import discord
 from discord.ext import commands
 from util import relative, config
 
@@ -25,6 +26,15 @@ bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insen
 @bot.event
 async def on_ready():
     logging.info(f"We have logged in as {bot.user}")
+
+    logging.info("Trying to get version number...")
+    try:
+        with open(relative.make_relative("data/version"), "r") as version_file:
+            version_number = version_file.read()
+            await bot.change_presence(activity=discord.Game(name=f"⏱️ {version_number}"))
+    except Exception as e:
+        logging.warning("Could not find version file. Place a file named \"version\" in the data folder to display a version number in the bot presence")
+        logging.warning(e)
 
     # Load modules from the cogs folder
     for cog in os.listdir(relative.make_relative("cogs")):
