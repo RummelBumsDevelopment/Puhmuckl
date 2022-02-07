@@ -1,6 +1,7 @@
 """
 The entrypoint for the bot
 """
+
 import os
 import logging
 import discord
@@ -56,6 +57,17 @@ async def on_ready():
         except Exception as err:
             logging.error("Failed to load module %s: %s. Continuing", cog, err)
 
+
+# @bot.event
+# async def on_message(message:discord.message.Message):
+#     if(not message.author.bot):
+#         if("schade um den punkt" in message.content.lower()):
+            
+#     return
+# @bot.event
+# async def on_message(message):
+#     if (message.channel.id=="940217437289345034"):
+#         bot.
 
 # Launch bot
 if __name__ == "__main__":
