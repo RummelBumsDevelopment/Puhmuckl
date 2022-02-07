@@ -19,4 +19,4 @@ class Ingmar(commands.Cog):
 
     @commands.command(name="ingmar", help="Ingmars")
     async def echo(self, ctx):
-        await ctx.send("卍")
+        await ctx.send("<:GetIngmart:929757284148600944>")
