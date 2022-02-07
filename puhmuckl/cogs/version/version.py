@@ -2,6 +2,7 @@
 Allows pulling current version from version file
 Only neccessary when last pull didn't change the bot's code
 """
+import discord
 from discord.ext import commands
 from util import relative
 import logging
@@ -12,8 +13,8 @@ class Version(commands.Cog):
         self.bot = bot
 
     @commands.command(name="version", help="prints current commit #")
-    async def echo(self, ctx: commands.context, *args):
-        """Echo command implementation
+    async def version(self, ctx: commands.context, *args):
+        """Version command implementation
         Args:
             ctx (commands.context): Context in which the command was used
         """
@@ -22,5 +23,6 @@ class Version(commands.Cog):
                 currentVersion = versionfile.read()
         except Exception as err:
             logging.error("Failed to load version!")
-            
-        await ctx.send("Current commit#: "+currentVersion)
+
+        await self.bot.change_presence(activity=discord.Game(name=f"⏱️ {currentVersion}"))
+        await ctx.send("⏱️ "+currentVersion)
