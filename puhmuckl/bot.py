@@ -24,8 +24,12 @@ if not config.load_config():
 
 logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")])
 
+# Intents, to access role members
+intents = discord.Intents.default()
+intents.members = True
+
 # Create bot
-bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insensitive=True)
+bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insensitive=True, intents=intents)
 
 @bot.event
 async def on_ready():
