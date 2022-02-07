@@ -1,3 +1,6 @@
+"""
+The entrypoint for the bot
+"""
 import os
 import logging
 import discord
@@ -23,6 +26,8 @@ logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")
 # Create bot
 bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insensitive=True)
 
+"""This event is invoked when the bot is being logged in
+"""
 @bot.event
 async def on_ready():
     logging.info("We have logged in as %s", bot.user)
@@ -45,7 +50,7 @@ async def on_ready():
     for cog in os.listdir(relative.make_relative("cogs")):
         if cog == "__pycache__":
             continue
-        
+
         try:
             bot.load_extension("cogs.{cog}")
             logging.info("Loaded module %s", cog)

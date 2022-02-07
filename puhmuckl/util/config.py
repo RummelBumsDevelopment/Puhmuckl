@@ -8,8 +8,7 @@ from util import relative
 
 config = ConfigParser()
 
-"""
-Loads a config file and creates the parser object
+"""Loads a config file and creates the parser object
 """
 def load_config() -> bool:
     logging.info("Trying to load config.ini...")
@@ -40,20 +39,17 @@ def load_config() -> bool:
 
     return True
 
-"""
-Returns a client config entry
+"""Returns a client config entry
 """
 def get_client_config(key: str) -> str:
     return config["CLIENT"][key]
 
-"""
-Returns an authorization config entry
+"""Returns an authorization config entry
 """
 def get_auth_config(key: str) -> str:
     return config["AUTHORIZATION"][key]
 
-"""
-Returns a script config entry
+"""Returns a script config entry
 """
 def get_script_config(key: str) -> str:
     return config["SCRIPT"][key]
