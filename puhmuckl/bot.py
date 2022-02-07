@@ -51,7 +51,7 @@ async def on_ready():
             continue
 
         try:
-            bot.load_extension("cogs.{cog}")
+            bot.load_extension(f"cogs.{cog}")
             logging.info("Loaded module %s", cog)
         except Exception as err:
             logging.error("Failed to load module %s: %s. Continuing", cog, err)
