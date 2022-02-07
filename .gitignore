@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 venv/
+puhmuckl/data/version
 *.ini
