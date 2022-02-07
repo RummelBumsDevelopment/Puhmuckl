@@ -1,5 +1,6 @@
 # Echo: Responds with the args
 from email.message import Message
+from unittest import result
 from discord.ext import commands
 from discord.message import Message
 import time
@@ -15,8 +16,7 @@ class Ingmar(commands.Cog):
                 return
             if("卍" in message.content):
                 await message.delete()
-
-
+            
     @commands.command(name="ingmar", help="Ingmars")
     async def echo(self, ctx):
         await ctx.send("<:GetIngmart:929757284148600944>")
