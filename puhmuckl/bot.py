@@ -32,6 +32,8 @@ async def on_ready():
         with open(relative.make_relative("data/version"), "r") as version_file:
             version_number = version_file.read()
             await bot.change_presence(activity=discord.Game(name=f"⏱️ {version_number}"))
+            logging.info(f"Set version: {version_number}")
+        
     except Exception as e:
         logging.warning("Could not find version file. Place a file named \"version\" in the data folder to display a version number in the bot presence")
         logging.warning(e)
