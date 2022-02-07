@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Set up paths, config and logging
 relative.set_pwd(os.path.dirname(__file__))
-if not config.load_config(relative.make_relative("data/config.ini")):
+if not config.load_config():
     exit(-1)
 
 logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")])
@@ -29,10 +29,10 @@ async def on_ready():
 
     logging.info("Trying to get version number...")
     try:
-        with open(relative.make_relative("data/version"), "r") as version_file:
+        with open(relative.make_relative("data/version"), "r", encoding="utf-8") as version_file:
             version_number = version_file.read()
             await bot.change_presence(activity=discord.Game(name=f"⏱️ {version_number}"))
-            logging.info(f"Set version: {version_number}")
+            logging.info("Set version: %s", version_number)
 
     except Exception as err:
         logging.warning("""
