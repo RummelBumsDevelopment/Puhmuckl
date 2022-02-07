@@ -5,8 +5,6 @@ import os
 
 PWD = ""
 
-"""Sets the new working directory
-"""
 def set_pwd(path: str):
     """Sets the new working directory
 
@@ -16,8 +14,6 @@ def set_pwd(path: str):
     global PWD
     PWD = path
 
-"""Makes a relative path relative to the pwd
-"""
 def make_relative(path: str) -> str:
     """Makes a relative path relative to the pwd
 

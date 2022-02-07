@@ -4,8 +4,7 @@ Implements the Echo module
 from discord.ext import commands
 
 class Echo(commands.Cog):
-    """Echo cog
-    """
+    """Echo cog"""
     def __init__(self, bot):
         self.bot = bot
 

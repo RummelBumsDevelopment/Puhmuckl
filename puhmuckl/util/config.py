@@ -21,7 +21,7 @@ def load_config() -> bool:
     try:
         with open(relative.make_relative("data/config.ini"), "r", encoding="utf-8") as configfile:
             config.read_file(configfile)
-    except:
+    except Exception as err:
         logging.error("""
             Could not open config.ini, please look inside the data folder, 
             enter credentials and restart the bot

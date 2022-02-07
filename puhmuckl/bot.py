@@ -28,8 +28,7 @@ bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insen
 
 @bot.event
 async def on_ready():
-    """This event is invoked when the bot is being logged in
-    """
+    """This event is invoked when the bot is being logged in"""
     logging.info("We have logged in as %s", bot.user)
 
     logging.info("Trying to get version number...")
