@@ -1,5 +1,7 @@
 import requests
 import logging
+
+import urllib.parse
 from util import config
 import xml.etree.ElementTree as ET
 
@@ -66,7 +68,10 @@ class WolframResponse:
 
     def send(self):
         response = requests.get(
-            WolframResponse.API_ENDPOINT.format(config.get_auth_config('wolframalpha'), self.query)
+            WolframResponse.API_ENDPOINT.format(
+                config.get_auth_config('wolframalpha'), 
+                urllib.parse.quote(self.query)
+            )
         )
 
         logging.debug(response.text)

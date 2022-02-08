@@ -167,4 +167,5 @@ class WolframAlpha(commands.Cog):
 
     @commands.command(name="wolframalpha", description="Queries Wolfram|Alpha", usage="<query>", aliases=["wolf", "wa"])
     async def wolframalpha(self, ctx: commands.Context, *,  query):
+        logging.debug(query)
         await self.query(ctx, query)
