@@ -83,7 +83,10 @@ class WolframEmbed(interactive.InteractiveEmbed):
         self.owner = self.ctx.author
 
         self.response = response
-        self.selected_pod = 1
+        self.selected_pod = 0
+
+        if "input" in self.response.pods[0].title.lower():
+            self.selected_pod = 1
 
     async def add_navigation(self, message):
         await message.add_reaction(WolframEmbed.REACTIONS["close"])
@@ -167,4 +170,5 @@ class WolframAlpha(commands.Cog):
 
     @commands.command(name="wolframalpha", description="Queries Wolfram|Alpha", usage="<query>", aliases=["wolf", "wa"])
     async def wolframalpha(self, ctx: commands.Context, *,  query):
+        logging.debug(query)
         await self.query(ctx, query)
