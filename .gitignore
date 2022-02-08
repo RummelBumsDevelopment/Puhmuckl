@@ -131,3 +131,4 @@ dmypy.json
 venv/
 puhmuckl/data/version
 *.ini
+*.json
