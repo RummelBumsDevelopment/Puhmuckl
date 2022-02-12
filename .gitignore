@@ -132,3 +132,4 @@ venv/
 puhmuckl/data/version
 *.ini
 *.json
+*.png
