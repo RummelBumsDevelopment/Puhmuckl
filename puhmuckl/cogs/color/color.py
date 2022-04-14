@@ -7,6 +7,7 @@ from email.message import Message
 from discord.ext import commands
 from discord import User
 from discord import utils
+import logging
 class Color(commands.Cog):
 
     """Color cog"""
@@ -45,9 +46,15 @@ class Color(commands.Cog):
         while len(hex) < 6:
             hex = hex + '0'
 
+        logging.info("New HEX: "+hex)
+
         #convert hex to rgb
         rolename = name="#-"+hex
         hex = int(hex, 16)
+
+        # shitty #-0 fix
+        if hex == 0:
+            hex +=1
 
         #remove existing color role
         userroles = ctx.message.author.roles
