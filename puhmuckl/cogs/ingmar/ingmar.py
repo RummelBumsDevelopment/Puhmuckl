@@ -33,7 +33,6 @@ class Ingmar(commands.Cog):
     @ingmar.group(pass_context=True)
     async def allow(self, ctx):
         try:
-            pass
             config.set_ingmar_allowedChannels(ctx.channel)
             await ctx.send("Ingmar ist ab hier zulässig")
         except FileExistsError:
