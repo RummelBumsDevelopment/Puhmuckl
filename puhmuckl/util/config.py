@@ -36,6 +36,9 @@ def load_config() -> bool:
         config.add_section("SCRIPT")
         config["SCRIPT"]["logLevel"] = "INFO"
 
+        config.add_section("***REMOVED***")
+        config["***REMOVED***"]["allowedChannels"] = ""
+
         os.mkdir(relative.make_relative("data"))
         with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
             config.write(configfile)
@@ -76,3 +79,37 @@ def get_script_config(key: str) -> str:
         str: Value of the key
     """
     return config["SCRIPT"][key]
+
+def get_***REMOVED***_allowedChannels():
+    "Returns List of channels where Ingmar is allowed"
+    return config["***REMOVED***"]["allowedChannels"].split(",")
+
+def set_***REMOVED***_allowedChannels(newChannel: str) -> str:
+    """
+    Adds new Channel to list of allowed channels
+    """
+    try:
+        with open(relative.make_relative("data/config.ini"), "r", encoding="utf-8") as configfile:
+            config.read_file(configfile)
+    except Exception as e:
+        print("Tja")
+        return
+   
+    currentChannels = config["***REMOVED***"]["allowedChannels"]
+
+    newChannel = str(newChannel)
+
+    if newChannel in currentChannels:
+        raise FileExistsError
+
+    if len(currentChannels) != 0:
+        currentChannels = currentChannels + ',' + newChannel
+    else:
+        currentChannels = newChannel
+
+    config["***REMOVED***"]["allowedChannels"] = currentChannels
+
+    with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
+            config.write(configfile)
+
+    return
