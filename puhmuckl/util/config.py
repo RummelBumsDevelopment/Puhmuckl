@@ -36,8 +36,9 @@ def load_config() -> bool:
         config.add_section("SCRIPT")
         config["SCRIPT"]["logLevel"] = "INFO"
 
-        config.add_section("INGMAR")
-        config["INGMAR"]["allowedChannels"] = ""
+        config.add_section("ZENSURSULA")
+        config["ZENSURSULA"]["uncensoredChannels"] = ""
+        config["ZENSURSULA"]["censoredWords"] = ""
 
         os.mkdir(relative.make_relative("data"))
         with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
@@ -46,6 +47,7 @@ def load_config() -> bool:
         return False
 
     return True
+
 
 def get_client_config(key: str) -> str:
     """Returns a client config entry
@@ -58,6 +60,7 @@ def get_client_config(key: str) -> str:
     """
     return config["CLIENT"][key]
 
+
 def get_auth_config(key: str) -> str:
     """Returns a authorization config entry
 
@@ -68,6 +71,7 @@ def get_auth_config(key: str) -> str:
         str: Value of the key
     """
     return config["AUTHORIZATION"][key]
+
 
 def get_script_config(key: str) -> str:
     """Returns a script config entry
@@ -80,36 +84,43 @@ def get_script_config(key: str) -> str:
     """
     return config["SCRIPT"][key]
 
-def get_ingmar_allowedChannels():
-    "Returns List of channels where Ingmar is allowed"
-    return config["INGMAR"]["allowedChannels"].split(",")
 
-def set_ingmar_allowedChannels(newChannel: str) -> str:
+def get_censoredWords():
+    # returns list of censored words
+
+    return config["ZENSURSULA"]["censoredWords"].split(",")
+
+
+def get_uncensoredChannels():
+    "Returns List of channels where no censorship takes place"
+    return config["ZENSURSULA"]["uncensoredChannels"].split(",")
+
+
+def set_channelCensorship(newChannel: str, censorship) -> str:
     """
     Adds new Channel to list of allowed channels
     """
-    try:
-        with open(relative.make_relative("data/config.ini"), "r", encoding="utf-8") as configfile:
-            config.read_file(configfile)
-    except Exception as e:
-        print("Tja")
-        return
-   
-    currentChannels = config["INGMAR"]["allowedChannels"]
 
-    newChannel = str(newChannel)
+    # pull list of currently uncensored channels
+    uncensoredChannels = config["ZENSURSULA"]["uncensoredChannels"].split(",")
 
-    if newChannel in currentChannels:
-        raise FileExistsError
-
-    if len(currentChannels) != 0:
-        currentChannels = currentChannels + ',' + newChannel
+    if censorship:
+        # channel will be censored
+        if str(newChannel) in uncensoredChannels:
+            uncensoredChannels.remove(str(newChannel))
+        else:
+            raise FileExistsError
     else:
-        currentChannels = newChannel
+        # channel will be uncensored
+        if str(newChannel) in uncensoredChannels:
+            raise FileExistsError
+        else:
+            uncensoredChannels.append(str(newChannel))
 
-    config["INGMAR"]["allowedChannels"] = currentChannels
-
+    # Make list string again
+    config["ZENSURSULA"]["uncensoredChannels"] = ",".join(uncensoredChannels)
+    
+    # Write that shit to the .ini file
     with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
             config.write(configfile)
-
     return
