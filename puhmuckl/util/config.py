@@ -114,8 +114,8 @@ def set_channelCensorship(newChannel: str, censorship) -> str:
         # channel will be uncensored
         if str(newChannel) in uncensoredChannels:
             raise FileExistsError
-        else:
-            uncensoredChannels.append(str(newChannel))
+        
+        uncensoredChannels.append(str(newChannel))
 
     # Make list string again
     config["ZENSURSULA"]["uncensoredChannels"] = ",".join(uncensoredChannels)
