@@ -10,6 +10,7 @@ config.ini is supposed to be generated and repaired in this class in case anythi
 
 class Config:
     # $ProjectRoot/data/config.ini
+    # TODO; use or remove relative.py
     datafolder = os.path.join(pathlib.Path(__file__).parent.parent,"data")
     inipath = os.path.join(pathlib.Path(__file__).parent.parent,"data","config.ini")
     logfile = os.path.join(pathlib.Path(__file__).parent.parent,"data","puhmuckl.log")

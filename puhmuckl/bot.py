@@ -9,20 +9,15 @@ from discord.ext import commands
 from util import relative, config
 
 # Set log level
-log_level_dict = {
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR
-}
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename=config.logfile, encoding='utf-8', level=config.get_loglevel())
 
 # Set up paths, config and logging
+config = config.Config()
+config.checkConfig()
+
 relative.set_pwd(os.path.dirname(__file__))
 if not config.load_config():
     exit(-1)
-
-logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")])
 
 # Intents, to access role members
 intents = discord.Intents.default()
