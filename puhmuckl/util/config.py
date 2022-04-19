@@ -1,126 +1,142 @@
-"""
-Contains the configs of the bots ini file
-"""
-from configparser import ConfigParser
-import os
 import logging
-from util import relative
+import configparser
+import pathlib
+import os
 
-config = ConfigParser()
-
-"""Loads a config file and creates the parser object
 """
-def load_config() -> bool:
-    """Loads a config file and creates the parser object
+This will handle configuration in this project.
+config.ini is supposed to be generated and repaired in this class in case anything is missing.
+"""
 
-    Returns:
-        bool: True if the loading of the config was successful
-    """
-    logging.info("Trying to load config.ini...")
+class Config:
+    # $ProjectRoot/data/config.ini
+    datafolder = os.path.join(pathlib.Path(__file__).parent.parent,"data")
+    inipath = os.path.join(pathlib.Path(__file__).parent.parent,"data","config.ini")
+    logfile = os.path.join(pathlib.Path(__file__).parent.parent,"data","puhmuckl.log")
 
-    try:
-        with open(relative.make_relative("data/config.ini"), "r", encoding="utf-8") as configfile:
-            config.read_file(configfile)
-    except Exception as err:
-        logging.error("""
-            Could not open config.ini, please look inside the data folder, 
-            enter credentials and restart the bot
-            """)
+
+    def generateConfig(self):
+        # Generates entire configuration anew, this will CLEAR any previous configuration
+        config = self.get_default_config()
+
+        # Write config to file
+        self.writeConfig(config)
         
-        config.add_section("AUTHORIZATION")
-        config["AUTHORIZATION"]["token"] = "Bot Token"
-
-        config.add_section("CLIENT")
-        config["CLIENT"]["prefix"] = ";"
-
-        config.add_section("SCRIPT")
-        config["SCRIPT"]["logLevel"] = "INFO"
-
-        config.add_section("ZENSURSULA")
-        config["ZENSURSULA"]["uncensoredChannels"] = ""
-        config["ZENSURSULA"]["censoredWords"] = ""
-
-        os.mkdir(relative.make_relative("data"))
-        with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
-            config.write(configfile)
-
-        return False
-
-    return True
+        logging.info("Success! config.ini has been created!")
+        logging.info("Change its parameters and restart the program.")
+        exit()
 
 
-def get_client_config(key: str) -> str:
-    """Returns a client config entry
-
-    Args:
-        key (str): Key to extract
-
-    Returns:
-        str: Value of the key
-    """
-    return config["CLIENT"][key]
-
-
-def get_auth_config(key: str) -> str:
-    """Returns a authorization config entry
-
-    Args:
-        key (str): Key to extract
-
-    Returns:
-        str: Value of the key
-    """
-    return config["AUTHORIZATION"][key]
-
-
-def get_script_config(key: str) -> str:
-    """Returns a script config entry
-
-    Args:
-        key (str): Key to extract
-
-    Returns:
-        str: Value of the key
-    """
-    return config["SCRIPT"][key]
-
-
-def get_censoredWords():
-    # returns list of censored words
-
-    return config["ZENSURSULA"]["censoredWords"].split(",")
-
-
-def get_uncensoredChannels():
-    "Returns List of channels where no censorship takes place"
-    return config["ZENSURSULA"]["uncensoredChannels"].split(",")
-
-
-def set_channelCensorship(newChannel: str, censorship) -> str:
-    """
-    Adds new Channel to list of allowed channels
-    """
-
-    # pull list of currently uncensored channels
-    uncensoredChannels = config["ZENSURSULA"]["uncensoredChannels"].split(",")
-
-    if censorship:
-        # channel will be censored
-        if str(newChannel) in uncensoredChannels:
-            uncensoredChannels.remove(str(newChannel))
-        else:
-            raise FileExistsError
-    else:
-        # channel will be uncensored
-        if str(newChannel) in uncensoredChannels:
-            raise FileExistsError
+    def checkConfig(self):
+        # Check if config.ini is present, and whether it's incomplete
         
-        uncensoredChannels.append(str(newChannel))
+        # Check if 'data' folder is present
+        if not os.path.exists(self.datafolder):
+            logging.warning("Data folder doesen't exist, creating...")
+            try:
+                os.mkdir(self.datafolder)
+            except Exception as e:
+                logging.error("Failed to create data directory: "+ str(e))
 
-    # Make list string again
-    config["ZENSURSULA"]["uncensoredChannels"] = ",".join(uncensoredChannels)
+        # Check if 'config.ini' is present
+        if not os.path.exists(self.inipath):
+            logging.warning("ini file doesen't exist, creating...")
+            self.generateConfig()
+
+        # Check if 'config.ini' is missing sections or keys
+        defaultconfig = self.get_default_config()
+        config = configparser.ConfigParser()
+        config.read(self.inipath)
+
+        # Adding missing sections/keys (Using defaultconfig as basefile)
+        for section in defaultconfig.sections():
+            # Adding sections
+            if not section in config.sections():
+                logging.warning("Section '"+str(section)+"' missing. Adding it now.")
+                config.add_section(section)
+            
+            # Adding keys to sections
+            for defaultkey in defaultconfig.items(section):
+                currentKeys = []
+
+                # Create list of current section keys
+                for key in config.items(section):
+                    currentKeys.append(key[0])
+
+                if not defaultkey[0] in currentKeys:
+                    logging.warning("Key '"+str(defaultkey[0])+"' missing. Adding it now.")
+                    config[section][defaultkey[0]] = defaultkey[1]
+                
+        self.writeConfig(config)
+        logging.info("Config check completed.")
+
+
+    def writeConfig(self, config):
+        # Write config to file
+        try:
+            with open(self.inipath, 'w') as configfile:
+                config.write(configfile)
+        except Exception as e:
+            logging.error("Failed to write 'config.ini': "+ str(e))
+            exit()
+
+
+    def get_default_config(self):
+        # This is where you can define what the config.ini is supposed to look like
+        # DO NOT SET ANY API KEYS OR PASSWORDS AS DEFAULT
+        config = configparser.ConfigParser()
+
+        config['AUTHORIZATION'] = {
+            "token" : "",
+            "wolframalpha" : ""
+        }
+
+        config['CLIENT'] = {
+            "prefix" : "?"
+        }
+
+        config['SCRIPT'] = {
+            "loglevel" : "info"
+        }
+
+        config['ZENSURSULA'] = {
+            "censoredwords" : "",
+            "uncensoredchannels" : "",
+        }
+        return config
     
-    # Write that shit to the .ini file
-    with open(relative.make_relative("data/config.ini"), "w", encoding="utf-8") as configfile:
-            config.write(configfile)
-    return
+    
+    def get_config(self, category, key):
+        # Calling just the string within the .ini without any checks
+        config = configparser.ConfigParser()
+        
+        self.checkConfig()
+
+        try:
+            config.read(self.inipath)
+            return config[category][key]
+        except Exception as e:
+            logging.error("Failed to read 'config.ini' "+ str(e))
+
+
+    def get_loglevel(self):
+        # Returns logging.<loglevel> object for configuration
+        loglevel_input = str(self.get_config("LOGGING","loglevel")).lower()
+
+        allowed_loglevels = {
+            "debug" : logging.debug,
+            "info" : logging.info,
+            "warning" : logging.warning,
+            "error" : logging.error,
+            "critical" : logging.critical
+        }
+
+        try:
+            return allowed_loglevels[loglevel_input]
+        except Exception as e:
+            logging.error("Failed to set configured loglevel. Defaulting to 'info'")
+            return logging.info
+
+# if config.py is run directly it will check and regenerate the 'config.ini'
+logging.info("Checking 'config.ini'...")
+Config().checkConfig()
