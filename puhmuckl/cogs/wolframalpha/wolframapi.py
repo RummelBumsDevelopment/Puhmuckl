@@ -69,7 +69,7 @@ class WolframResponse:
     def send(self):
         response = requests.get(
             WolframResponse.API_ENDPOINT.format(
-                config.get_auth_config('wolframalpha'), 
+                config.get_config('AUTHORIZATION','wolframalpha'), 
                 urllib.parse.quote(self.query)
             )
         )
@@ -90,7 +90,7 @@ class WolframResponse:
         self.parsetimedout  = root_node.attrib["parsetimedout"]
         self.recalculate    = root_node.attrib["recalculate"]
 
-        did_you_mean = root_node.find("didyoumeans")
+        did_you_mean = root_node.find("didyoumean")
         if did_you_mean is not None:
             for tag in did_you_mean.findall("didyoumean"):
                 self.did_you_means.append(WolframDidYouMean(tag))

@@ -14,13 +14,12 @@ def set_pwd(path: str):
     global PWD
     PWD = path
 
-def make_relative(path: str) -> str:
-    """Makes a relative path relative to the pwd
+def make_relative(*args):
+    # takes multiple strings and combines them into a new path
 
-    Args:
-        path (str): Generic relative path
+    result = PWD
 
-    Returns:
-        str: Path relative to pwd
-    """
-    return os.path.join(PWD, path)
+    for item in args:
+        result = os.path.join(result,item)
+
+    return result

@@ -8,28 +8,29 @@ import discord
 from discord.ext import commands
 from util import relative, config
 
-# Set log level
-log_level_dict = {
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR
-}
-logging.basicConfig(level=logging.INFO)
+# start logging
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
-# Set up paths, config and logging
+# set path
+logging.debug("Working directory: "+str(os.path.dirname(__file__)))
 relative.set_pwd(os.path.dirname(__file__))
-if not config.load_config():
-    exit(-1)
 
-logging.getLogger().setLevel(log_level_dict[config.get_script_config("logLevel")])
+# init config obj
+config = config.Config()
 
-# Intents, to access role members
+# Set log level - now use actual config
+logging.basicConfig(filename=config.get_logfile, encoding='utf-8', level=config.get_loglevel())
+
+# Checks config for valid .ini (and attempts to repair it or add new entries)
+config.checkConfig()
+
+
+# Intents, to access role members (Discord acces rights stuff)
 intents = discord.Intents.default()
 intents.members = True
 
 # Create bot
-bot = commands.Bot(command_prefix=config.get_client_config("prefix"), case_insensitive=True, intents=intents)
+bot = commands.Bot(command_prefix=config.get_config("CLIENT","prefix"), case_insensitive=True, intents=intents)
 
 @bot.event
 async def on_ready():
@@ -63,4 +64,4 @@ async def on_ready():
 
 # Launch bot
 if __name__ == "__main__":
-    bot.run(config.get_auth_config("token"))
+    bot.run(config.get_config("AUTHORIZATION","token"))
