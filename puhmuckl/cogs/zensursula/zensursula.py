@@ -39,7 +39,7 @@ class Zensursula(commands.Cog):
     @zensursula.group(pass_context=True, help="Disable Censorship in current channel")
     async def disable(self, ctx):
         try:
-            config.set_channelCensorship(ctx.channel, False)
+            self.set_channelCensorship(ctx.channel, False)
             await ctx.send("Dieser Kanal wird ab sofort nicht weiter Zensiert.")
         except FileExistsError:
             await ctx.send("Fick dich, der ist schon unzensiert. Erst nachdenken dann schreiben.")
@@ -49,7 +49,7 @@ class Zensursula(commands.Cog):
     @zensursula.group(pass_context=True, help="Enable censorship in current channel")
     async def enable(self, ctx):
         try:
-            config.set_channelCensorship(ctx.channel, True)
+            self.set_channelCensorship(ctx.channel, True)
         except FileExistsError:
             await ctx.send("Der Channel wird überhaupt nicht zensiert du Opfer.")
             return
@@ -59,13 +59,13 @@ class Zensursula(commands.Cog):
     @zensursula.group(pass_context=True, help="Enable censorship in current channel")
     async def list(self, ctx):
             
-        await ctx.send("Unzensierte Channel: "+str(config.get_uncensoredChannels()))
+        await ctx.send("Unzensierte Channel: "+str(self.get_uncensoredChannels()))
 
 
     def isChannelCensored(self, currentChannel):
         # Returns true only if channel is beeing censored
 
-        allowedChannels = config.get_uncensoredChannels()
+        allowedChannels = self.get_uncensoredChannels()
 
         for channel in allowedChannels:
             if channel == str(currentChannel):
@@ -78,9 +78,52 @@ class Zensursula(commands.Cog):
     def checkForCensoredWord(self, content):
         # Checks if provided String contains censored words, returns False if not
 
-        censoredWords = config.get_censoredWords()
+        censoredWords = config.get_config("ZENSURSULA","censoredwords").split(",")
 
         for word in censoredWords:
             if word.lower() in str(content).lower():
                 return True
         return False
+
+
+    def get_uncensoredChannels(self):
+        # Returns list of uncensored channels
+        return config.get_config("ZENSURSULA","uncensoredchannels").split(",")
+
+
+    def add_uncensoredChannel(self, newChannel):
+        # Writes channel list into .ini 
+        uncensoredchannels = config.get_config("ZENSURSULA","uncensoredchannels").split(",")
+        uncensoredchannels.append(newChannel)
+        config.set_config("ZENSURSULA","uncensoredchannels", ",".join(uncensoredchannels))
+
+
+    def set_channelCensorship(self, newChannel, censorship):
+        # Adds new Channel to list of allowed channels
+
+        # pull list of currently uncensored channels
+        uncensoredChannels = config.get_config("ZENSURSULA","uncensoredChannels").split(",")
+
+        if censorship:
+            # channel will be censored
+            if str(newChannel) in uncensoredChannels:
+                uncensoredChannels.remove(str(newChannel))
+            else:
+                raise FileExistsError
+        else:
+            # channel will be uncensored
+            if str(newChannel) in uncensoredChannels:
+                raise FileExistsError
+            else:
+                uncensoredChannels.append(str(newChannel))
+
+        # clean up empty lines (If there are any)
+        try:
+            uncensoredChannels.remove("")
+        except ValueError:
+            # continue if empty string is not present
+            pass
+
+        # Make list string again and set config
+        config.set_config("ZENSURSULA","uncensoredChannels",",".join(uncensoredChannels))
+        return
