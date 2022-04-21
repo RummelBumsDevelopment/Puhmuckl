@@ -114,8 +114,7 @@ class Zensursula(commands.Cog):
             # channel will be uncensored
             if str(newChannel) in uncensoredChannels:
                 raise FileExistsError
-            else:
-                uncensoredChannels.append(str(newChannel))
+            uncensoredChannels.append(str(newChannel))
 
         # clean up empty lines (If there are any)
         try:
