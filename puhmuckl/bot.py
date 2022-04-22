@@ -1,25 +1,21 @@
 """
 The entrypoint for the bot
 """
-
 import os
 import logging
 import discord
 from discord.ext import commands
 from util import relative, config
 
-# start logging
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
-
 # set path
 logging.debug("Working directory: "+str(os.path.dirname(__file__)))
 relative.set_pwd(os.path.dirname(__file__))
 
 # init config obj
-config = config.Config()
+#config = config.Config()
 
 # Set log level - now use actual config
-logging.basicConfig(filename=config.get_logfile, encoding='utf-8', level=config.get_loglevel())
+logging.basicConfig(encoding='utf-8', level=config.get_loglevel())
 
 # Checks config for valid .ini (and attempts to repair it or add new entries)
 config.checkConfig()
@@ -39,7 +35,7 @@ async def on_ready():
 
     logging.info("Trying to get version number...")
     try:
-        with open(relative.make_relative("data/version"), "r", encoding="utf-8") as version_file:
+        with open(relative.make_relative("data","version"), "r", encoding="utf-8") as version_file:
             version_number = version_file.read()
             await bot.change_presence(activity=discord.Game(name=f"⏱️ {version_number}"))
             logging.info("Set version: %s", version_number)
@@ -49,6 +45,7 @@ async def on_ready():
         Could not find version file. 
         Place a file named \"version\" in the data folder to display a version number in the bot presence.
         """)
+        await bot.change_presence(activity=discord.Game(name=f"⏱️ unknown"))
         logging.warning(err)
 
     # Load modules from the cogs folder

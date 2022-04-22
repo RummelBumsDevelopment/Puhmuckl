@@ -9,141 +9,160 @@ log = logging.getLogger(__name__)
 """
 This will handle configuration in this project.
 config.ini is supposed to be generated and repaired in this class in case anything is missing.
+
+Please use get_config() if you only need the string in the ini
 """
 
-class Config:
-    # $ProjectRoot/data/config.ini
 
-    def generateConfig(self):
-        # Generates entire configuration anew, this will CLEAR any previous configuration
-        config = self.get_default_config()
+def generateConfig():
+    # Generates entire configuration anew, this will CLEAR any previous configuration
+    config = get_default_config()
 
-        # Write config to file
-        self.writeConfig(config)
+    # Write config to file
+    writeConfig(config)
+    
+    log.info("Success! config.ini has been created!")
+    log.info("Change its parameters and restart the program.")
+    exit()
+
+
+def checkConfig():
+    # Check if config.ini is present, and whether it's incomplete
+    
+    # Check if 'data' folder is present
+    if not os.path.exists(get_datafolder()):
+        log.warning("Data folder doesen't exist, creating...")
+        try:
+            os.mkdir(get_datafolder())
+        except Exception as e:
+            log.error("Failed to create data directory: "+ str(e))
+
+    # Check if 'config.ini' is present
+    if not os.path.exists(get_inipath()):
+        log.warning("ini file doesen't exist, creating...")
+        generateConfig()
+
+    # Check if 'config.ini' is missing sections or keys
+    defaultconfig = get_default_config()
+    config = configparser.ConfigParser()
+    config.read(get_inipath())
+
+    # Adding missing sections/keys (Using defaultconfig as basefile)
+    for section in defaultconfig.sections():
+        # Adding sections
+        if not section in config.sections():
+            log.warning("Section '"+str(section)+"' missing. Adding it now.")
+            config.add_section(section)
         
-        log.info("Success! config.ini has been created!")
-        log.info("Change its parameters and restart the program.")
+        # Adding keys to sections
+        for defaultkey in defaultconfig.items(section):
+            currentKeys = []
+
+            # Create list of current section keys
+            for key in config.items(section):
+                currentKeys.append(key[0])
+
+            if not defaultkey[0] in currentKeys:
+                log.warning("Key '"+str(defaultkey[0])+"' missing. Adding it now.")
+                config[section][defaultkey[0]] = defaultkey[1]
+            
+    writeConfig(config)
+    log.info("Config check completed.")
+
+
+def writeConfig(config):
+    # Write config to file
+    try:
+        with open(get_inipath(), 'w') as configfile:
+            config.write(configfile)
+    except Exception as e:
+        log.error("Failed to write 'config.ini': "+ str(e))
         exit()
 
 
-    def checkConfig(self):
-        # Check if config.ini is present, and whether it's incomplete
-        
-        # Check if 'data' folder is present
-        if not os.path.exists(self.get_datafolder()):
-            log.warning("Data folder doesen't exist, creating...")
-            try:
-                os.mkdir(self.get_datafolder())
-            except Exception as e:
-                log.error("Failed to create data directory: "+ str(e))
+def get_default_config():
+    # This is where you can define what the config.ini is supposed to look like
+    # DO NOT SET ANY API KEYS OR PASSWORDS AS DEFAULT
+    config = configparser.ConfigParser()
 
-        # Check if 'config.ini' is present
-        if not os.path.exists(self.get_inipath()):
-            log.warning("ini file doesen't exist, creating...")
-            self.generateConfig()
+    config['AUTHORIZATION'] = {
+        "token" : "",
+        "wolframalpha" : ""
+    }
 
-        # Check if 'config.ini' is missing sections or keys
-        defaultconfig = self.get_default_config()
-        config = configparser.ConfigParser()
-        config.read(self.get_inipath())
+    config['CLIENT'] = {
+        "prefix" : "?"
+    }
 
-        # Adding missing sections/keys (Using defaultconfig as basefile)
-        for section in defaultconfig.sections():
-            # Adding sections
-            if not section in config.sections():
-                log.warning("Section '"+str(section)+"' missing. Adding it now.")
-                config.add_section(section)
-            
-            # Adding keys to sections
-            for defaultkey in defaultconfig.items(section):
-                currentKeys = []
+    config['SCRIPT'] = {
+        "loglevel" : "info"
+    }
 
-                # Create list of current section keys
-                for key in config.items(section):
-                    currentKeys.append(key[0])
-
-                if not defaultkey[0] in currentKeys:
-                    log.warning("Key '"+str(defaultkey[0])+"' missing. Adding it now.")
-                    config[section][defaultkey[0]] = defaultkey[1]
-                
-        self.writeConfig(config)
-        log.info("Config check completed.")
+    config['ZENSURSULA'] = {
+        "censoredwords" : "",
+        "uncensoredchannels" : "",
+    }
+    return config
 
 
-    def writeConfig(self, config):
-        # Write config to file
-        try:
-            with open(self.get_inipath(), 'w') as configfile:
-                config.write(configfile)
-        except Exception as e:
-            log.error("Failed to write 'config.ini': "+ str(e))
-            exit()
+def get_config(category, key):
+    # Calling just the string within the .ini without any checks
+    config = configparser.ConfigParser()
+
+    try:
+        config.read(get_inipath())
+        return config[category][key]
+    except Exception as e:
+        log.error("Failed to read 'config.ini' "+ str(e))
 
 
-    def get_default_config(self):
-        # This is where you can define what the config.ini is supposed to look like
-        # DO NOT SET ANY API KEYS OR PASSWORDS AS DEFAULT
-        config = configparser.ConfigParser()
+def get_config_object():
+    # Returns entire config object for further manipulation
+    config = configparser.ConfigParser()
 
-        config['AUTHORIZATION'] = {
-            "token" : "",
-            "wolframalpha" : ""
-        }
-
-        config['CLIENT'] = {
-            "prefix" : "?"
-        }
-
-        config['SCRIPT'] = {
-            "loglevel" : "info"
-        }
-
-        config['ZENSURSULA'] = {
-            "censoredwords" : "",
-            "uncensoredchannels" : "",
-        }
+    try:
+        config.read(get_inipath())
         return config
-    
-    
-    def get_config(self, category, key):
-        # Calling just the string within the .ini without any checks
-        config = configparser.ConfigParser()
+    except Exception as e:
+        log.error("Failed to read 'config.ini' "+ str(e))
 
-        try:
-            config.read(self.get_inipath())
-            return config[category][key]
-        except Exception as e:
-            log.error("Failed to read 'config.ini' "+ str(e))
 
-    def get_datafolder(self):
-        datafolder = relative.make_relative("data")
-        log.debug("Datafolder: "+str(datafolder))
-        return datafolder
+def get_datafolder():
+    datafolder = relative.make_relative("data")
+    return datafolder
 
-    def get_inipath(self):
-        inipath = relative.make_relative("data","config.ini")
-        log.debug("config.ini: "+str(inipath))
-        return inipath
 
-    def get_logfile(self):
-        logfile = relative.make_relative("data","puhmuckl.log")
-        log.debug("logfile: "+str(logfile))
-        return logfile
+def get_inipath():
+    inipath = relative.make_relative("data","config.ini")
+    return inipath
 
-    def get_loglevel(self):
-        # Returns log.<loglevel> object for configuration
-        loglevel_input = str(self.get_config("SCRIPT","loglevel")).lower()
 
-        allowed_loglevels = {
-            "debug" : logging.DEBUG,
-            "info" : logging.INFO,
-            "warning" : logging.WARNING,
-            "error" : logging.ERROR,
-            "critical" : logging.CRITICAL
-        }
+def get_logfile():
+    logfile = relative.make_relative("data","puhmuckl.log")
+    return logfile
 
-        try:
-            return allowed_loglevels[loglevel_input]
-        except Exception as e:
-            log.error("Failed to set configured loglevel. Defaulting to 'debug'")
-            return logging.DEBUG
+
+def get_loglevel():
+    # Returns log.<loglevel> object for configuration
+    loglevel_input = str(get_config("SCRIPT","loglevel")).lower()
+
+    allowed_loglevels = {
+        "debug" : logging.DEBUG,
+        "info" : logging.INFO,
+        "warning" : logging.WARNING,
+        "error" : logging.ERROR,
+        "critical" : logging.CRITICAL
+    }
+
+    try:
+        return allowed_loglevels[loglevel_input]
+    except Exception as e:
+        log.error("Failed to set configured loglevel. Defaulting to 'debug'")
+        return logging.DEBUG
+
+
+def set_config(category, key, value):
+    # change config option
+    config = get_config_object()
+    config[category][key] = value
+    writeConfig(config)
