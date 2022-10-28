@@ -176,6 +176,9 @@ class Zensursula(commands.Cog):
             f"Der kleine {name} steht and der Info und sucht seinen Betreuer."
         ]
 
+        if not "i" in name:
+            insults.append(f"Das 'i' in {name} steht für intelligent.")
+
         return random.choice(insults)
 
     
