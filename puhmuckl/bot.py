@@ -8,14 +8,15 @@ from discord.ext import commands
 from util import relative, config
 
 # set path
-logging.debug("Working directory: "+str(os.path.dirname(__file__)))
+logger = logging.getLogger("puhmuckl")
+logger.debug("Working directory: "+str(os.path.dirname(__file__)))
 relative.set_pwd(os.path.dirname(__file__))
 
 # init config obj
 #config = config.Config()
 
 # Set log level - now use actual config
-logging.basicConfig(encoding='utf-8', level=config.get_loglevel())
+logger.setLevel(config.get_loglevel())
 
 # Checks config for valid .ini (and attempts to repair it or add new entries)
 config.checkConfig()
@@ -24,6 +25,7 @@ config.checkConfig()
 # Intents, to access role members (Discord acces rights stuff)
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 # Create bot
 bot = commands.Bot(command_prefix=config.get_config("CLIENT","prefix"), case_insensitive=True, intents=intents)
