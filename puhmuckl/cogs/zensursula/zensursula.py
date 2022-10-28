@@ -168,7 +168,12 @@ class Zensursula(commands.Cog):
         insults = [
             f"{name}, halt dein Maul du Bastard.",
             f"{name} ist ein Hurensohn.",
-            f"Wallah Krise, sag doch nicht sowas {name}"
+            f"Wallah Krise, sag doch nicht sowas {name}",
+            f"{name} macht einfach diesen <:sadge:902675012912300052>",
+            f"Wenn {name} sein Nachricht ist sus <:amogus:1035576042779316276>",
+            f"{name} schafft es nicht das Maul zu halten.",
+            f"{name} rafft nicht wann Schluss ist",
+            f"Der kleine {name} steht and der Info und sucht seinen Betreuer."
         ]
 
         return random.choice(insults)
