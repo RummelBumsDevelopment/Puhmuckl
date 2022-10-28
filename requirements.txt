@@ -6,7 +6,7 @@ chardet==4.0.0
 charset-normalizer==2.0.11
 idna==3.3
 multidict==6.0.2
-py-cord==1.7.3
+py-cord==2.2.2
 requests==2.27.1
 typing_extensions==4.0.1
 urllib3==1.26.8

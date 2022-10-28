@@ -1,37 +1,49 @@
 # Echo: Responds with the args
+import discord
 from discord.ext import commands
 from discord.message import Message
-import time
-import logging
+import logging, random, re
 from util import config
 
-# Zensursula actively deletes unwanted text and responds to specific keywords
 
 class Zensursula(commands.Cog):
+    '''Zensursula actively deletes unwanted text and responds to specific keywords'''
+    
+    censorship_history = {}
+    
     def __init__(self, bot:commands.bot.Bot):
+        self.logger = logging.getLogger("puhmuckl.zensursula")
         self.bot = bot
 
     @commands.Cog.listener()
-    # This contains the hardcoded responses and Censorship
     async def on_message(self,message:Message):
+        '''This function combined with its decorator reacts to written messages.'''
+        
         if not message.author.bot:
-
-            logging.info("|"+str(message.channel)+"| "+str(message.author)+": "+str(message.content))
+            self.logger.info("|"+str(message.channel)+"| "+str(message.author)+": "+str(message.content))
             
-            if "schade um den punkt" in message.content.lower():
-                await message.channel.send("https://tenor.com/view/south-park-cartman-poop-homework-gif-12698863",delete_after=5)
-                return
-            if("卍" in message.content):
-                await message.delete()
-            
-            # Censorship
+            # censorship first
             if (self.isChannelCensored(message.channel) and self.checkForCensoredWord(message.content)):
-                await message.channel.send("Halt dein Maul du Bastard!")
-                await message.delete()
+                self.censorship_history[message.channel.id] = {
+                    "name" : message.author.nick,
+                    "image" : message.author.display_avatar,
+                    "content" : self.replace_censored(message.content),
+                }
                 
+                await message.channel.send(self.get_insult(message.author.nick))
+                await message.delete()
+                return
+            
+            # Other reactions to specific keywords
+            msg_lower = message.content.lower()
+
+            if "schade um den punkt" in msg_lower:
+                await message.channel.send("https://tenor.com/view/south-park-cartman-poop-homework-gif-12698863",delete_after=5)
+            
 
     @commands.group(pass_context=True, aliases=["zensur"])
     async def zensursula(self, ctx):
+        '''Base command, does nothing.'''
         if ctx.invoked_subcommand is None:
             await ctx.send("Kommando unvollständig! Krieg mal dein Leben in den Griff...")
 
@@ -56,27 +68,50 @@ class Zensursula(commands.Cog):
         await ctx.send("Channel ist zensiert. Das gilt ab sofort, unverzüglich.")
 
 
-    @zensursula.group(pass_context=True, help="Enable censorship in current channel")
+    @zensursula.group(pass_context=True, help="Returns list of censored channels")
     async def list(self, ctx):
-            
+        #TODO Maybe make it independend of the server
         await ctx.send("Unzensierte Channel: "+str(self.get_uncensoredChannels()))
 
 
+    @zensursula.group(pass_context=True, help="Restores latest deleted message.")
+    async def restore(self, ctx):
+        '''This function will restore the latest deleted message in the current channel (stored in dict within this class)'''
+
+        if ctx.message.channel.id in self.censorship_history:
+            if self.censorship_history[ctx.message.channel.id] is not None:
+                old_message = self.censorship_history[ctx.message.channel.id]
+                
+                msg_embed = {
+                    "author":{
+                        "name": str(old_message["name"]),
+                        "icon_url": str(old_message["image"])
+                        },
+                    "description": str(old_message["content"])
+                    }
+                await ctx.send(embed=discord.Embed.from_dict(msg_embed))
+                
+                # clear history
+                self.censorship_history[ctx.message.channel.id] = None            
+            else:
+                await ctx.send("Nichts gefunden. Verpiss dich.")
+
+
     def isChannelCensored(self, currentChannel):
-        # Returns true only if channel is beeing censored
+        '''Returns true only if channel is beeing censored'''
 
         allowedChannels = self.get_uncensoredChannels()
 
         for channel in allowedChannels:
             if channel == str(currentChannel):
-                logging.debug("Channel is not censored!")
+                self.logger.debug("Channel is not censored!")
                 return False
-        logging.debug("Channel is beeing censored!")
+        self.logger.debug("Channel is beeing censored!")
         return True
 
 
     def checkForCensoredWord(self, content):
-        # Checks if provided String contains censored words, returns False if not
+        '''Checks if provided String contains censored words, returns False if not'''
 
         censoredWords = config.get_config("ZENSURSULA","censoredwords").split(",")
 
@@ -87,7 +122,7 @@ class Zensursula(commands.Cog):
 
 
     def get_uncensoredChannels(self):
-        # Returns list of uncensored channels
+        '''Returns list of uncensored channels'''
         return config.get_config("ZENSURSULA","uncensoredchannels").split(",")
 
 
@@ -126,3 +161,31 @@ class Zensursula(commands.Cog):
         # Make list string again and set config
         config.set_config("ZENSURSULA","uncensoredChannels",",".join(uncensoredChannels))
         return
+    
+
+    def get_insult(self, name) -> str:
+        '''Returns insult from list in function.'''
+        insults = [
+            f"{name}, halt dein Maul du Bastard.",
+            f"{name} ist ein Hurensohn.",
+            f"Wallah Krise, sag doch nicht sowas {name}"
+        ]
+
+        return random.choice(insults)
+
+    
+    def replace_censored(self, message: str) -> str:
+        '''Takes string and replaces censored words with **ZENSIERT**'''
+        censoredWords = config.get_config("ZENSURSULA","censoredwords").split(",")
+
+        result = message
+
+        for word in censoredWords:
+            pattern = re.compile(re.escape(word), re.IGNORECASE)
+            result = pattern.sub("**ZENSIERT**", result)
+        return result
+
+
+
+if __name__ == "__main__":
+    logging.error("This file is not supposed to be executed.")
