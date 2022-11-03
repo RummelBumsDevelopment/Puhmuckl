@@ -189,9 +189,12 @@ class Zensursula(commands.Cog):
         result = message
 
         for word in censoredWords:
+            print(word)
             if not other.is_emoji(word):
                 pattern = re.compile(re.escape(word), re.IGNORECASE)
                 result = pattern.sub("**ZENSIERT**", result)
+            else:
+                print("wort war emoji")
         return result
 
 
