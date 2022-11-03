@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord.message import Message
 import logging, random, re
-from util import config
+from util import config, other
 
 
 class Zensursula(commands.Cog):
@@ -116,7 +116,7 @@ class Zensursula(commands.Cog):
         censoredWords = config.get_config("ZENSURSULA","censoredwords").split(",")
 
         for word in censoredWords:
-            if word.lower() in str(content).lower():
+            if word.lower() in str(content).lower() and not other.is_emoji(word):
                 return True
         return False
 
@@ -189,8 +189,9 @@ class Zensursula(commands.Cog):
         result = message
 
         for word in censoredWords:
-            pattern = re.compile(re.escape(word), re.IGNORECASE)
-            result = pattern.sub("**ZENSIERT**", result)
+            if not other.is_emoji(word):
+                pattern = re.compile(re.escape(word), re.IGNORECASE)
+                result = pattern.sub("**ZENSIERT**", result)
         return result
 
 
