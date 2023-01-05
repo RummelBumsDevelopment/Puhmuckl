@@ -173,7 +173,8 @@ class Zensursula(commands.Cog):
             f"Wenn {name} sein Nachricht ist sus <:amogus:1035576042779316276>",
             f"{name} schafft es nicht das Maul zu halten.",
             f"{name} rafft nicht wann Schluss ist",
-            f"Der kleine {name} steht and der Info und sucht seinen Betreuer."
+            f"Der kleine {name} steht and der Info und sucht seinen Betreuer.",
+            f"Alter {name} du dummer Wichser, mach das nicht nochmal."
         ]
 
         if not "i" in name:
